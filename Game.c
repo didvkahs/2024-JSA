@@ -4,7 +4,7 @@
 
 #ifdef _WIN32
     #include <windows.h>
-    #include <coino.h>
+    #include <conio.h>
 #else
     #include <unistd.h> // equivalent to window.h file
     #include <termios.h> // to use getch and kbhit
@@ -49,12 +49,13 @@
 //macro function
 #define NEXT(node) ((node)->Link[(node)->Heading])
 #define PREV(node) ((node)->Link[!(node)->Heading])
-#define CENTI_VERDICT(centi, x, y) (Map[(centi)->X + x + 100 *((centi)->Y + y)] == ' ' && Map[(centi)->X + x + 100 *((centi)->Y + y)] == 'W')
-#define USER_VERDICT(user, x, y) (Map[(user)->X + x + 100 *((user)->Y + y)] == ' ' && Map[(user)->X + x + 100 *((user)->Y + y)] == '@')
+#define CENTI_VERDICT(centi, x, y) (Map[(centi)->X + x + 100 *((centi)->Y + y)] == ' ' || Map[(centi)->X + x + 100 *((centi)->Y + y)] == 'W')
+#define USER_VERDICT(user, x, y) (Map[(user)->X + x + 100 *((user)->Y + y)] == ' ' || Map[(user)->X + x + 100 *((user)->Y + y)] == '@')
 #define INDEX(x, y) (Map[x + 100 * y])
 
 //constant
 #define MAPSIZE 5500 // 100 * 55
+#define MAPHORIZONTAL 100
 #define OBSTACLE 150
 #define REMAININGS 10
 #define MOBSIZE 20
@@ -173,6 +174,8 @@ void GameSetUp(Player_t** user, Monster_t** mob, Bullet_t** arm)
     assert(*mob != NULL);
     *arm = malloc(sizeof(Bullet_t) * REMAININGS);
     assert(*user != NULL);
+    MonsterInfoList = malloc(sizeof(MonsterInfo_t));
+    assert(MonsterInfoList != NULL);
 
     // user setting  
     (*user)->Blood = BLOOD;
@@ -180,28 +183,20 @@ void GameSetUp(Player_t** user, Monster_t** mob, Bullet_t** arm)
     (*user)->X = COORDX;
     (*user)->Y = 53; // player coord y position
 
-    // mob basic setting
-    for(int i = 0; i < MOBSIZE - 1; ++i)
+    // mob setting
+    for(int i = 0; i < MOBSIZE; ++i)
     {
         (*mob + i)->X = COORDX;
         (*mob + i)->Y = COORDY;
         (*mob + i)->Row = BOOL_TRUE;
         (*mob + i)->Col = BOOL_TRUE;
         (*mob + i)->Heading = BOOL_TRUE;
-    }
-    // mob list link setting
-    for (int i = 1; i < MOBSIZE - 1; ++i)
-    {
         NEXT(*mob + i) = *mob + i + 1;
         PREV(*mob + i) = *mob + i - 1;
     }
-    NEXT(*mob) = *mob + 1;
-    PREV(*mob) = NULL;
-    NEXT(*mob + MOBSIZE - 1) = NULL;
-    PREV(*mob + MOBSIZE - 1) = *mob + MOBSIZE - 2;
+    PREV(*mob) = NEXT(*mob + MOBSIZE - 1) = NULL;
 
     //infolist setting
-    MonsterInfoList = malloc(sizeof(MonsterInfo_t));
     MonsterInfoList->Head = *mob;
     MonsterInfoList->Tail = *mob + MOBSIZE - 1;
     MonsterInfoList->Next = NULL;
@@ -396,25 +391,43 @@ void SplitMonster(int index)
 {
     pMonsterInfo_t mobList = MonsterInfoList;
     assert(mobList != NULL);
-   
+    pMonsterInfo_t newInfoNode = malloc(sizeof(MonterInfo_t));
+    assert(newInfoNode != NULL);
+    
     while(mobList != NULL)
     {
-        pMonster_t headNode = mobList->Head;
-       
-        while(headNode != NULL)
+        pMonster_t mobNode = mobList->Head;
+        assert(mobNode != NULL);
+        
+        if(mobNode->X + MAPHORIZONAL * mobNode->Y == index)
         {
-            if(headNode->X + 100 * headNode->Y == index)
+            while(mobNode!= NULL)
             {
-                // make new MonsterInfoList
-                pMonsterInfo_t newInfoNode = malloc(sizeof(MonsterInfo_t));
-                assert(newInfoNode != NULL);
-               
-                newInfoNode->Head = NEXT(headNode);
-                newInfoNode->Tail = mobList->Tail;
-                mobList->Tail = PREV(headNode);
-               
-                newInfoNode->Next = mobList;
-                mobList = newInfoNode;
+                INDEX(mobNode->X, mobNode->Y) = 'M';
+                mobNode = NEXT(mobNode);
+            }
+            mobList->Head = NULL;
+            moblist->Tail = NULL;        
+        }
+        else
+        {
+            mobNode = NEXT(mobNode);
+            
+            while(mobNode!= NULL)
+            {
+                if(mobNode->X + MAPHORIZONAL * mobNode->Y == INDEX)
+                {
+                    newInfoNode->Head = NEXT(mobNode);
+                    newInfoNode->Tail = mobList->Tail;
+                    mobList->Tail = PREV(mobNode);
+                    NEXT(PREV(mobNode)) = NULL; // think when last list
+                    PREV(NEXT(mobNode)) = NULL; // think wneh frist list
+                    
+                    newInfoNode->Next = mobList;
+                    mobList = newInfoNode;
+                }
+                
+                mobNode = NEXT(mobNode);
             }
         }
     }
@@ -444,7 +457,7 @@ void ShootBullet(Bullet_t** arm)
                     break;
                 case '@':
                     (*arm)->Load = BOOL_TRUE;
-                    SplitMonster((*arm)->X + 100 * ((*arm)->Y + j));
+                    SplitMonster((*arm)->X + MAPHORIZONTAL * ((*arm)->Y + j));
                     break;
                 default:
                     INDEX((*arm)->X, (*arm)->Y) = ' ';
