@@ -337,33 +337,33 @@ void MovMonster(void)
         if (monster->Row && CENTI_VERDICT(monster, (-1), 0))
         {
             //left
-            assert(CENTI_VERDICT(monster, (-1), 0) == BOOL_FALSE);
+            assert(CENTI_VERDICT(monster, (-1), 0) == BOOL_TRUE);
             monster->X = monster->X - 1;
         }
         else if(monster->Row == BOOL_FALSE && CENTI_VERDICT(monster, 1, 0))
         {
             //right
-            assert(CENTI_VERDICT(monster, 1, 0) == BOOL_FALSE);
+            assert(CENTI_VERDICT(monster, 1, 0) == BOOL_TRUE);
             monster->X = monster->X + 1;
         }
         else if (monster->Col && CENTI_VERDICT(monster, 0, 1))
         {
             //down
-            assert(CENTI_VERDICT(monster, 0, 1) == BOOL_FALSE);
+            assert(CENTI_VERDICT(monster, 0, 1) == BOOL_TRUE);
             monster->Row = !(monster->Row);
             monster->Y = monster->Y + 1;
         }
         else if (monster->Col == BOOL_FALSE && CENTI_VERDICT(monster, 0, (-1)))
         {
             //up
-            assert(CENTI_VERDICT(monster, 0, (-1)) == BOOL_FALSE);
+            assert(CENTI_VERDICT(monster, 0, (-1)) == BOOL_TRUE);
             monster->Row = !(monster->Row);
             monster->Y = monster->Y - 1;
         }
         else if (monster->Col && CENTI_VERDICT(monster, 0, (-1)))
         {
             //if down is not possible go up
-            assert(CENTI_VERDICT(monster, 0, (-1)) == BOOL_FALSE);
+            assert(CENTI_VERDICT(monster, 0, (-1)) == BOOL_TRUE);
             monster->Col = !(monster->Col);
             monster->Row = !(monster->Row);
             monster->Y = monster->Y - 1;
@@ -371,7 +371,7 @@ void MovMonster(void)
         else if (monster->Col == BOOL_FALSE && CENTI_VERDICT(monster, 0, 1))
         {
             //if up is not possible go down
-            assert(CENTI_VERDICT(monster, 0, 1) == BOOL_FALSE);
+            assert(CENTI_VERDICT(monster, 0, 1) == BOOL_TRUE);
             monster->Col = !(monster->Col);
             monster->Row = !(monster->Row);
             monster->Y = monster->Y + 1;
