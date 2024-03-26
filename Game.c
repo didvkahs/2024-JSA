@@ -401,13 +401,18 @@ void SplitMonster(int index)
         
         if(mobNode->X + MAPHORIZONAL * mobNode->Y == index)
         {
+            pMonster_t addressTemp = mobNode;
+
             while(mobNode!= NULL)
             {
                 INDEX(mobNode->X, mobNode->Y) = 'M';
                 mobNode = NEXT(mobNode);
             }
+            PREV(NEXT(addressTemp)) = NULL;
+            NEXT(PREV(addressTemp)) = NULL;
             mobList->Head = NULL;
-            moblist->Tail = NULL;        
+            moblist->Tail = NULL;
+            free(newInfoNode);
         }
         else
         {
@@ -417,19 +422,22 @@ void SplitMonster(int index)
             {
                 if(mobNode->X + MAPHORIZONAL * mobNode->Y == INDEX)
                 {
-                    newInfoNode->Head = NEXT(mobNode);
-                    newInfoNode->Tail = mobList->Tail;
+                    newInfoNode->Head = mobList->Tail;
+                    newInfoNode->Tail = NEXT(mobNode);
                     mobList->Tail = PREV(mobNode);
-                    NEXT(PREV(mobNode)) = NULL; // think when last list
-                    PREV(NEXT(mobNode)) = NULL; // think wneh frist list
-                    
+                    NEXT(PREV(mobNode)) = NULL;
+                    PREV(NEXT(mobNode)) = NULL;
+
                     newInfoNode->Next = mobList;
                     mobList = newInfoNode;
+
+                    break;
                 }
                 
                 mobNode = NEXT(mobNode);
             }
         }
+        mobList = mobList->Next;
     }
 }
 
