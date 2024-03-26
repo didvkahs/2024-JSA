@@ -391,7 +391,7 @@ void SplitMonster(int index)
 {
     pMonsterInfo_t mobList = MonsterInfoList;
     assert(mobList != NULL);
-    pMonsterInfo_t newInfoNode = malloc(sizeof(MonterInfo_t));
+    pMonsterInfo_t newInfoNode = malloc(sizeof(MonsterInfo_t));
     assert(newInfoNode != NULL);
     
     while(mobList != NULL)
@@ -399,7 +399,7 @@ void SplitMonster(int index)
         pMonster_t mobNode = mobList->Head;
         assert(mobNode != NULL);
         
-        if(mobNode->X + MAPHORIZONAL * mobNode->Y == index)
+        if(mobNode->X + MAPHORIZONTAL * mobNode->Y == index)
         {
             pMonster_t addressTemp = mobNode;
 
@@ -411,7 +411,7 @@ void SplitMonster(int index)
             PREV(NEXT(addressTemp)) = NULL;
             NEXT(PREV(addressTemp)) = NULL;
             mobList->Head = NULL;
-            moblist->Tail = NULL;
+            mobList->Tail = NULL;
             free(newInfoNode);
         }
         else
@@ -420,7 +420,7 @@ void SplitMonster(int index)
             
             while(mobNode!= NULL)
             {
-                if(mobNode->X + MAPHORIZONAL * mobNode->Y == INDEX)
+                if(mobNode->X + MAPHORIZONTAL * mobNode->Y == index)
                 {
                     newInfoNode->Head = mobList->Tail;
                     newInfoNode->Tail = NEXT(mobNode);
